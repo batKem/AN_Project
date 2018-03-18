@@ -7,7 +7,7 @@ class Mover{
   float Y_MIN = -200;
   
   Mover(){
-    location =new PVector(width/2, height/2,0);
+    location =new PVector(0, -80,0);
     velocity= new PVector(0,0,0);
   }
   
@@ -21,24 +21,28 @@ class Mover{
   }
   
   void checkEdges(){
-  
-   if(location.x > width) {
-     velocity.x *= -1; 
+   
+   if(location.x > 500) {
+     velocity.x *= -0.5; 
      }
-    else if(location.x < 0) {
-      velocity.x *= -1; 
+    else if(location.x < -500) {
+      velocity.x *= -0.5; 
  
-}
-if(location.y > height) {
-  velocity.z *= -1; 
+  }
+  if(location.z > 500) {
+    velocity.z *= -0.5; 
 
-}
-else if(location.y < 0) {
-  velocity.z *= -1; 
+  }
+  else if(location.z < -500) {
+    velocity.z *= -0.5; 
 
-}
-    
-
+  }
+  
+  //fixing a bug where the ball keeps falling out of range because
+  // its speed kept being multiplied by -1 which led to negative speed values being
+  // positive ones since gravity adds up
+  location.x = max(-500,min(location.x,500));
+  location.z = max(-500,min(location.z,500));  
   
   }
   
