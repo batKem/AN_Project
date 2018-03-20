@@ -41,6 +41,8 @@ translate(width/2, height/2, 0);
   
   run();
   }
+  else{
+  shiftMode();}
   
   
 
@@ -75,6 +77,7 @@ void run(){
     popMatrix();
   }
   
+
   
   popMatrix();
   //arbitrary size for the box, you can modify this as you like
@@ -86,6 +89,47 @@ void run(){
 
   popMatrix();
 }
+
+
+  void shiftMode(){
+      pushMatrix();
+    //rotating on the X axis first so that this axis 
+    //remains a global axis, and the Z axis will be a local axis
+
+    //ball's matrix
+    pushMatrix();
+    rotateX(-PI/2);
+    ball.display();
+
+    popMatrix();
+
+    pushMatrix();
+  
+  
+    for (PVector v : cylinders){
+      
+      pushMatrix();
+      rotateX(PI/2);
+      translate(v.x,0,v.y);
+      scale(100,100,100);
+      shape(cylinder);
+      popMatrix();
+    }
+  
+  
+  
+    popMatrix();
+    //arbitrary size for the box, you can modify this as you like
+
+    //translate(0,80,0);
+    box(1000,1000,0);
+
+
+
+  popMatrix();
+  
+  }
+
 
 void grav(){
 
@@ -120,7 +164,7 @@ void mouseClicked(){
     print(mouseX+","+mouseY);
     float mx = map(mouseX,0,width,-500,500);
     float my = map(mouseY,0,height,-500,500);
-    cylinders.add(new PVector(mx,my));
+    cylinders.add(new PVector(mx,-my));
   
   }
 
