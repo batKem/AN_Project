@@ -52,6 +52,9 @@ void run(){
 	pushMatrix();
 	ball.update();
 	ball.checkEdges();
+	//Working on this
+		ball.checkCylinderCollision(cylinders);
+	//End of Working on this
 	ball.display();
 
 	popMatrix();

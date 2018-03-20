@@ -39,4 +39,8 @@ class Mover{
 		location.z = max(-500,min(location.z,500));  
 	}
 
+	void checkCylinderCollision(ArrayList<PVector> cylinders){
+		
+	}
+
 }
