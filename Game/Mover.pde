@@ -7,7 +7,7 @@ class Mover{
   float Y_MIN = -200;
   
   Mover(){
-    location =new PVector(0, -80,0);
+    location =new PVector(0, 0,0);
     velocity= new PVector(0,0,0);
   }
   
