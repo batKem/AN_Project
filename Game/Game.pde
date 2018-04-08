@@ -5,6 +5,7 @@ float depth = 2000;
 	float gravityConstant;
 	PShape cylinder;
 	ArrayList<PVector> cylinders;
+  float rotationScale=1.0;
 
 float rx=0 ;
 float rz=0 ;
@@ -25,7 +26,7 @@ void setup() {
 
 	cylinders= new ArrayList<PVector>();
 	cylinder = loadShape("cylinder.obj");
-
+  
 	shiftMode=false;
 }
 
@@ -164,14 +165,23 @@ void mouseClicked(){
 	}
 }
 
+void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  if( e !=0){
+  float sign = e/ abs(e);
+  rotationScale += 0.05*sign;
+  rotationScale = min( 2,max(0.1, rotationScale));}
+  print(rotationScale);
+}
+
 void mouseDragged(){
 	if (!shiftMode){
-		rx+= radians((mouseX-pmouseX));
+		rx+= radians((mouseX-pmouseX)*rotationScale) ;
 
 		//bounderies
 		rx = min( radians(60),max(rx,radians(-60)));
 
-		rz+= radians(-(mouseY-pmouseY));
+		rz+= radians(-(mouseY-pmouseY)*rotationScale);
 		rz = min( radians(60),max(rz,radians(-60)));
 	}
 }

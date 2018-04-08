@@ -51,6 +51,7 @@ class Mover{
     float absoluteDistance = norm(rawNormal(p1));
     return absoluteDistance -radius -cylinderRadius;
   }
+  
   PVector locationCorrectionVector(PVector p1){
     PVector normal = rawNormal(p1);
     float correctionNorm = cylinderRadius-norm(normal)+radius;
