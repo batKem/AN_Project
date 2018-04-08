@@ -52,6 +52,7 @@ void draw() {
 
 void run(){
 	grav();
+  translate(0,400,0);
 	pushMatrix();
 	//rotating on the X axis first so that this axis 
 	//remains a global axis, and the Z axis will be a local axis
@@ -63,7 +64,7 @@ void run(){
 	ball.update();
 	ball.checkEdges();
 	//Working on this
-		ball.checkCylinderCollision(cylinders);
+	ball.checkCylinderCollision(cylinders);
 	//End of Working on this
 	ball.display();
 
@@ -75,25 +76,12 @@ void run(){
   for (PVector v : cylinders){
     pushMatrix();
     
-    translate(v.x,0,v.y);
+    translate(v.x,-100,v.z);
     scale(100,100,100);
     shape(cylinder);
     popMatrix();
   }
-  
-
-  
-  popMatrix();
-  //arbitrary size for the box, you can modify this as you like
-
-	for (PVector v : cylinders){
-		pushMatrix();
-
-		translate(v.x,0,v.y);
-		scale(100,100,100);
-		shape(cylinder);
-		popMatrix();
-	}
+ 
 
 	popMatrix();
 
@@ -124,7 +112,7 @@ void run(){
       
       pushMatrix();
       rotateX(PI/2);
-      translate(v.x,0,v.y);
+      translate(v.x,0,-v.z);
       scale(100,100,100);
       shape(cylinder);
       popMatrix();
@@ -168,10 +156,11 @@ void keyReleased(){
 
 void mouseClicked(){
 	if(shiftMode){
-		print(mouseX+","+mouseY);
-		float mx = map(mouseX,0,width,-500,500);
-		float my = map(mouseY,0,height,-500,500);
-		cylinders.add(new PVector(mx,my));
+		print(mouseX+","+mouseY+"\n");
+		float mx = map(mouseX,140,360,-500,500);
+		float my = map(mouseY,140,360,-500,500);
+    if (!( mouseX<140 || mouseX>360 || mouseY<140 || mouseY>360))
+		cylinders.add(new PVector(mx,0,my));
 	}
 }
 

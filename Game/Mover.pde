@@ -6,7 +6,10 @@ class Mover{
 	float X_MIN = -200;
 	float Y_MAX=200;
 	float Y_MIN = -200;
-
+  
+  final float radius =50;
+  final float cylinderRadius = 100;
+  
 	Mover(){
 		location =new PVector(0, 0,0);
 		velocity= new PVector(0,0,0);
@@ -18,7 +21,7 @@ class Mover{
 
 	void display(){
 		translate(location.x, location.y, location.z);
-		sphere(50);
+		sphere(radius);
 	}
 
 	void checkEdges(){
@@ -38,9 +41,54 @@ class Mover{
 		location.x = max(-500,min(location.x,500));
 		location.z = max(-500,min(location.z,500));  
 	}
+  
+  PVector rawNormal(PVector p){
+    return new PVector(location.x-p.x,0, location.z-p.z);
+  }
+  
+  
+  float radialDistanceFromBall(PVector p1){
+    float absoluteDistance = norm(rawNormal(p1));
+    return absoluteDistance -radius -cylinderRadius;
+  }
+  PVector locationCorrectionVector(PVector p1){
+    PVector normal = rawNormal(p1);
+    float correctionNorm = cylinderRadius-norm(normal)+radius;
+    PVector normalized = normalize(normal);
+    return normalized.mult(correctionNorm);
+  
+  }
+
+  
+  float norm(PVector p){
+    return sqrt(p.x*p.x +p.y*p.y+p.z*p.z);
+  }
+  
+  PVector normalize(PVector vector){
+    return (vector.mult( (float)1/norm(vector) ));
+  }
+  
+  float dotProduct(PVector p1, PVector p2){
+    return p1.x*p2.x + p1.z*p2.z;
+  }
+  
+  void newVelocity( PVector previousVelocity, PVector cylinder){
+    
+    PVector normal = normalize(rawNormal(cylinder));
+    (previousVelocity.sub (  normal.mult(2*dotProduct(previousVelocity,normal) ) )).mult(0.8);
+  
+  }
 
 	void checkCylinderCollision(ArrayList<PVector> cylinders){
-		
+		for(PVector p: cylinders){
+       
+      if ( radialDistanceFromBall(p) <=0){
+       
+        location.add(locationCorrectionVector(p));
+        newVelocity(velocity, p);
+      }
+      
+    }
 	}
 
 }
