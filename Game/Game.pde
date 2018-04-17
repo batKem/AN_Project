@@ -1,4 +1,7 @@
-float depth = 2000;
+float depth = 2000.0;
+float fovy = PI/3.0;
+
+
 
 //global rotation values
 	PVector gravityForce;
@@ -10,16 +13,22 @@ float depth = 2000;
 float rx=0 ;
 float rz=0 ;
 
+float boardX, boardY;
+
 boolean shiftMode;
+PGraphics gameSurface;
 
 Mover ball;
 
 void settings() {
-	size(500, 500, P3D);
+	size(1000, 1000, P3D);
 }
 
 void setup() {
 	noStroke();
+
+  gameSurface = createGraphics(width, (int)(height*0.8), P3D);
+
 	ball =new Mover();
 	gravityForce= new PVector();
 	gravityConstant = -0.8;
@@ -27,109 +36,121 @@ void setup() {
 	cylinders= new ArrayList<PVector>();
 	cylinder = loadShape("cylinder.obj");
   
+  boardX = 1000;
+  boardY = 1000;
+  
 	shiftMode=false;
 }
 
 void draw() {
-	camera(width/2, height/2, depth, 250, 250, 0, 0, 1, 0);
-	directionalLight(50, 100, 125, 0, 1, 0);
-	ambientLight(102, 102, 102);
-	background(200);
-	translate(width/2, height/2, 0);
+  drawGame(gameSurface);
+  image(gameSurface,0,0);
+
+}
+
+void drawGame(PGraphics s){
+  s.beginDraw();
+  
+  s.camera(s.width/2, s.height/2, depth, s.width/2, s.height/2, 0, 0, 1, 0);
+ 
+  s.directionalLight(50, 100, 125, 0, 1, 0);
+  s.ambientLight(102, 102, 102);
+  s.background(200);
+  s.translate(s.width/2.0, s.height/2.0, 0);
 
 
 
   if (!shiftMode){
-  
-  run();
+   s.perspective(fovy,s.width/s.height, 1,30000);
+  run(s);
   }
   else{
-  shiftMode();}
-  
-  
+    s.ortho(-boardX, boardX, -boardY*( s.height/(float)s.width), boardY*( s.height/(float)s.width), -depth*2, depth*2) ;
 
-
+  shiftMode(s);}
+  s.endDraw();
+  
 }
 
-void run(){
+void run(PGraphics s){
 	grav();
-  translate(0,400,0);
-	pushMatrix();
+  s.translate(0,400,0);
+	s.pushMatrix();
 	//rotating on the X axis first so that this axis 
 	//remains a global axis, and the Z axis will be a local axis
-	rotateX(rz);
-	rotateZ(rx);
+	s.rotateX(rz);
+	s.rotateZ(rx);
 
 	//ball's matrix
-	pushMatrix();
+	s.pushMatrix();
 	ball.update();
 	ball.checkEdges();
 	//Working on this
 	ball.checkCylinderCollision(cylinders);
 	//End of Working on this
-	ball.display();
+	ball.display(s);
 
-	popMatrix();
+	s.popMatrix();
 
-  pushMatrix();
+  s.pushMatrix();
   
   
   for (PVector v : cylinders){
-    pushMatrix();
+    s.pushMatrix();
     
-    translate(v.x,-100,v.z);
-    scale(100,100,100);
-    shape(cylinder);
-    popMatrix();
+    s.translate(v.x,-100,v.z);
+    s.scale(100,100,100);
+    s.shape(cylinder);
+    s.popMatrix();
   }
  
 
-	popMatrix();
+	s.popMatrix();
 
 	//arbitrary size for the box, you can modify this as you like
-	translate(0,80,0);
-	box(1000,60,1000);
+	s.translate(0,80,0);
+	s.box(boardX,60,boardY);
 
-	popMatrix();
+	s.popMatrix();
 }
 
 
-  void shiftMode(){
-      pushMatrix();
+  void shiftMode(PGraphics s){
+      s.pushMatrix();
     //rotating on the X axis first so that this axis 
     //remains a global axis, and the Z axis will be a local axis
 
     //ball's matrix
-    pushMatrix();
-    rotateX(-PI/2);
-    ball.display();
+    s.pushMatrix();
+    s.rotateX(-PI/2);
+    ball.display(s);
 
-    popMatrix();
+    s.popMatrix();
 
-    pushMatrix();
+    s.pushMatrix();
   
   
     for (PVector v : cylinders){
       
-      pushMatrix();
-      rotateX(PI/2);
-      translate(v.x,0,-v.z);
-      scale(100,100,100);
-      shape(cylinder);
-      popMatrix();
+      s.pushMatrix();
+     s.rotateX(PI/2);
+      s.translate(v.x,0,-v.z);
+      s.scale(100,100,100);
+      s.shape(cylinder);
+      s.popMatrix();
     }
   
   
   
-    popMatrix();
+    s.popMatrix();
     //arbitrary size for the box, you can modify this as you like
 
     //translate(0,80,0);
-    box(1000,1000,0);
+    s.box(boardX,boardY,0);
 
 
 
-  popMatrix();
+  s.popMatrix();
   
   }
 
@@ -157,11 +178,15 @@ void keyReleased(){
 
 void mouseClicked(){
 	if(shiftMode){
-		print(mouseX+","+mouseY+"\n");
-		float mx = map(mouseX,140,360,-500,500);
-		float my = map(mouseY,140,360,-500,500);
-    if (!( mouseX<140 || mouseX>360 || mouseY<140 || mouseY>360))
-		cylinders.add(new PVector(mx,0,my));
+		
+    if (mouseY< gameSurface.height){
+    
+		float mx = map(mouseX,0,gameSurface.width,- boardX,boardX);
+		float my = map(mouseY,0,gameSurface.height,-boardY*( gameSurface.height/(float)gameSurface.width),
+                                                    boardY*( gameSurface.height/(float)gameSurface.width));
+    mx = min(boardX/2,max(-boardX/2, mx));
+    my = min(boardY/2,max(-boardY/2, my));
+		cylinders.add(new PVector(mx,0,my));}
 	}
 }
 

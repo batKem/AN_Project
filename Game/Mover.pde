@@ -19,9 +19,9 @@ class Mover{
 		location.add(velocity);
 	}
 
-	void display(){
-		translate(location.x, location.y, location.z);
-		sphere(radius);
+	void display(PGraphics s){
+		s.translate(location.x, location.y, location.z);
+		s.sphere(radius);
 	}
 
 	void checkEdges(){
