@@ -108,18 +108,13 @@ PImage convolute(PImage img) {
   for(int i = 1; i < img.width - 1; i++) { // for each (x,y) pixel in the image:
     for(int j = 1; j < img.height - 1; j++) { // we start in 1 & finish in -1 to aboid borders
       int r = 0; 
-      for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-
-          //Corregirr!!!!, indexOutOfBounds (por el kernel) && 
-            //no está cogiendo bien el pixel para el brightness!!
-          r +=  brightness(img.pixels[i + j * img.width] * (int) kernel[y][x]); // - multiply intensities for pixels in the range
+      for (int x = -1; x <= 1;) {
+        for (int y = -1; y <= 1;) {
+          r +=  brightness(img.pixels[x + y * img.width] * kernel[++y][++x]); // - multiply intensities for pixels in the range
         }
       }
-      if (r != 244)
-      println(r);
       // - sum all these intensities and divide it by normFactor
-      result.pixels[i + j * img.width] = color(r / normFactor); // - set result.pixels[y * img.width + x] to this value
+      result.pixels[x + y * img.width] = color(r / normFactor); // - set result.pixels[y * img.width + x] to this value
     }
   }
 

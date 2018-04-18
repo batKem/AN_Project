@@ -17,7 +17,6 @@ void setup() {
 
 void draw() {
     image(img, 0, 0);//show image
-
     /*PImage img2 = img.copy();//make a deep copy
       img2.loadPixels();// load pixels
       for (int x = 0; x < img2.width; x++)
@@ -35,13 +34,9 @@ void draw() {
 
   //PImage result = threshold(img, 255, thresholdBarBrighness.getPos(), 255, thresholdBarHue.getPos());
   
-  //PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
-
-  PImage result = convolute(img);
-
+  PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
   image(result, img.width, 0);
 }
-
 
 PImage threshold(PImage img, int thresholdBarBrighness){ 
 //Only take the pixels that are above/below a certain level of brightness
@@ -92,48 +87,4 @@ PImage thresholdHSB(PImage img, int minH, int maxH, int minS, int maxS, int minB
   }
 
   return result;
-}
-
-PImage convolute(PImage img) {
-  float[][] kernel = { { 0, 0, 0 },
-                        { 0, 2, 0 },
-                        { 0, 0, 0 }};
-  float normFactor = 1.f;
-
-  // create a greyscale image (type: ALPHA) for output
-  PImage result = createImage(img.width, img.height, ALPHA);
-
-  int kernelSize = kernel.length;// kernel size N = 3
-
-  for(int i = 1; i < img.width - 1; i++) { // for each (x,y) pixel in the image:
-    for(int j = 1; j < img.height - 1; j++) { // we start in 1 & finish in -1 to aboid borders
-      int r = 0; 
-      for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-
-          //Corregirr!!!!, indexOutOfBounds (por el kernel) && 
-            //no está cogiendo bien el pixel para el brightness!!
-          r +=  brightness(img.pixels[i + j * img.width] * (int) kernel[y][x]); // - multiply intensities for pixels in the range
-        }
-      }
-      if (r != 244)
-      println(r);
-      // - sum all these intensities and divide it by normFactor
-      result.pixels[i + j * img.width] = color(r / normFactor); // - set result.pixels[y * img.width + x] to this value
-    }
-  }
-
-  return result;
-}
-
-
-// Auxiliar functions //
-boolean imagesEqual(PImage img1, PImage img2){
-  if(img1.width != img2.width || img1.height != img2.height)
-    return false;
-  for(int i = 0; i < img1.width*img1.height ; i++)
-  //assuming that all the three channels have the same value
-  if(red(img1.pixels[i]) != red(img2.pixels[i]))
-    return false;
-  return true;
 }
