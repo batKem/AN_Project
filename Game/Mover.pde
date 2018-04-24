@@ -33,17 +33,22 @@ class Mover{
     s.ellipse(x, z, radius*dimension/500, radius*dimension/500);
   }
 
-	void checkEdges(){
+	void checkEdges(int[] score){
+    
 		if(location.x > 500) {
+      score[0] -= (int)norm(velocity);
 			velocity.x *= -0.5; 
 		} else if(location.x < -500) {
+      score[0] -= (int)norm(velocity);
 			velocity.x *= -0.5; 
 		} if(location.z > 500) {
+      score[0] -= (int)norm(velocity);
 			velocity.z *= -0.5; 
 		} else if(location.z < -500) {
+      score[0] -= (int)norm(velocity);
 			velocity.z *= -0.5; 
 		}
-
+    
 		/*fixing a bug where the ball keeps falling out of range because
 			its speed kept being multiplied by -1 which led to negative speed values being
 			positive ones since gravity adds up*/
@@ -89,14 +94,16 @@ class Mover{
   
   }
 
-	void checkCylinderCollision(ArrayList<PVector> cylinders, float cylinderRad){
+	void checkCylinderCollision(ArrayList<PVector> cylinders, float cylinderRad, int[] score){
   this.cylinderRadius = cylinderRad;
 		for(PVector p: cylinders){
        
       if ( radialDistanceFromBall(p) <=0){
-       
+        score[0] += (int)norm(velocity);
+        
         location.add(locationCorrectionVector(p));
         newVelocity(velocity, p);
+        
       }
       
     }

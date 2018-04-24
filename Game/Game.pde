@@ -10,17 +10,20 @@ float fovy = PI/3.0;
 	ArrayList<PVector> cylinders;
   float rotationScale=1.0;
   PVector cylinderScale;
+  
 
 float rx=0 ;
 float rz=0 ;
 
 float boardX, boardY;
 
-
+int[] score;
 
 boolean shiftMode;
 PGraphics gameSurface;
 PGraphics topView;
+PGraphics scoreText;
+PGraphics scorePanel;
 
 Mover ball;
 
@@ -30,11 +33,14 @@ void settings() {
 
 void setup() {
 	noStroke();
+  score = new int[1];
   
   this.cylinderScale =new PVector(50,100,50);
   
   gameSurface = createGraphics(width, (int)(height*0.8), P3D);
   topView = createGraphics((int)(height*0.18),(int)(height*0.18),P2D);
+  scoreText = createGraphics((int)(height*0.1),(int)(height*0.18),P2D);
+  scorePanel = createGraphics((int)(height*0.68),(int)(height*0.18),P2D);
 	ball =new Mover();
 	gravityForce= new PVector();
 	gravityConstant = -0.8;
@@ -54,6 +60,10 @@ void draw() {
   image(gameSurface,0,0);
   topView(topView);
   image(topView,10,(int)height*0.81);
+  textScore(scoreText);
+  image(scoreText,200,(int)height*0.81);
+  scorePanel(scorePanel);
+  image(scorePanel,310,(int)height*0.81);
 
 }
 
@@ -93,9 +103,11 @@ void run(PGraphics s){
 	//ball's matrix
 	s.pushMatrix();
 	ball.update();
-	ball.checkEdges();
+  
+  
+	ball.checkEdges(score);
 	//Working on this
-	ball.checkCylinderCollision(cylinders, this.cylinderScale.x);
+	ball.checkCylinderCollision(cylinders, this.cylinderScale.x,score);
 	//End of Working on this
 	ball.display(s);
 
@@ -207,6 +219,27 @@ void run(PGraphics s){
   s.endDraw();
   
   }
+   void textScore(PGraphics s){
+      s.beginDraw();
+      s.background(150);
+      
+      s.stroke(0);
+      s.text("v="+ball.norm(ball.velocity),10,10);
+      s.text("s="+score[0],10,20);
+      s.endDraw();
+  
+  }
+     void scorePanel(PGraphics s){
+      s.beginDraw();
+      s.background(150);
+      
+      s.stroke(0);
+      s.text("scorePanel",10,10);
+
+      s.endDraw();
+  
+  }
+  
 
 
 void grav(){
