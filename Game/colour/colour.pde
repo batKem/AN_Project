@@ -10,7 +10,6 @@ void setup() {
   thresholdBarBrighness = new HScrollbar(0, 580, 800, 20); //Upper one
   thresholdBarHue = new HScrollbar(0, 560, 800, 20);
 
-
   //noLoop(); // no interactive behaviour: draw() will be called only once.
 }
 
@@ -98,6 +97,15 @@ PImage convolute(PImage img) {
   float[][] kernel = { { 0, 0, 0 },
                         { 0, 2, 0 },
                         { 0, 0, 0 }};
+/*  float[][] kernel = { { 0, 1, 0 },
+                        { 1, 0, 1 },
+                        { 0, 1, 0 }};*/
+/* //Gaussian blur
+  float[][] kernel = { { 9, 12, 9 },
+                        { 12, 15, 12 },
+                        { 9, 12, 9 }};
+  float normFactor = 99.f;*/
+
   float normFactor = 1.f;
 
   // create a greyscale image (type: ALPHA) for output
@@ -105,24 +113,55 @@ PImage convolute(PImage img) {
 
   int kernelSize = kernel.length;// kernel size N = 3
 
-  for(int i = 1; i < img.width - 1; i++) { // for each (x,y) pixel in the image:
-    for(int j = 1; j < img.height - 1; j++) { // we start in 1 & finish in -1 to aboid borders
+  for(int i = 1; i < img.height - 1; i++) { // for each (x,y) pixel in the image:
+    for(int j = 1; j < img.width - 1; j++) { // we start in 1 & finish in -1 to avoid borders
       int r = 0; 
-      for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-
-          //Corregirr!!!!, indexOutOfBounds (por el kernel) && 
-            //no está cogiendo bien el pixel para el brightness!!
-          r +=  brightness(img.pixels[i + j * img.width] * (int) kernel[y][x]); // - multiply intensities for pixels in the range
+      //HardCoded the size of the kernel
+      for (int u = -1; u <= 1; u++) { //To go through the kernelArray
+        for (int w = -1; w <= 1; w++) {
+          int x = j + u;
+          int y = i + w;
+          //if( x >= 0 && y >= 0 && x < img.width && y < img.height)
+            r += kernel[u+1][w+1] * brightness(img.pixels[x + y*img.width]); 
         }
       }
-      if (r != 244)
-      println(r);
       // - sum all these intensities and divide it by normFactor
-      result.pixels[i + j * img.width] = color(r / normFactor); // - set result.pixels[y * img.width + x] to this value
+      result.pixels[j + i * img.width] = color(r / normFactor); // - set result.pixels[y * img.width + x] to this value
     }
   }
 
+  return result;
+}
+
+
+PImage scharr(PImage img) {
+  float[][] vKernel = {
+  { 3, 0, -3 },
+  { 10, 0, -10 },
+  { 3, 0, -3 } };
+
+  float[][] hKernel = {
+  { 3, 10, 3 },
+  { 0, 0, 0 },
+  { -3, -10, -3 } };
+
+  PImage result = createImage(img.width, img.height, ALPHA);
+  // clear the image
+  for (int i = 0; i < img.width * img.height; i++) {
+    result.pixels[i] = color(0);
+  }
+
+  float max=0;
+  float[] buffer = new float[img.width * img.height];
+    // *************************************
+    // Implement here the double convolution
+    // *************************************
+  for (int y = 2; y < img.height - 2; y++) { // Skip top and bottom edges
+    for (int x = 2; x < img.width - 2; x++) { // Skip left and right
+      int val=(int) ((buffer[y * img.width + x] / max)*255);
+      result.pixels[y * img.width + x]=color(val);
+    }
+  }
   return result;
 }
 
