@@ -8,7 +8,7 @@ class Mover{
 	float Y_MIN = -200;
   
   final float radius =50;
-  final float cylinderRadius = 100;
+  float cylinderRadius = 100;
   
 	Mover(){
 		location =new PVector(0, 0,0);
@@ -23,6 +23,15 @@ class Mover{
 		s.translate(location.x, location.y, location.z);
 		s.sphere(radius);
 	}
+
+  void display2D(PGraphics s, float dimension){
+    //s.translate(location.x, location.y, location.z);
+    
+    float x = map(location.x, -500.0,500.0, 0.0, dimension);
+    float z = map(location.z, -500.0,500.0, 0.0, dimension);
+    
+    s.ellipse(x, z, radius*dimension/500, radius*dimension/500);
+  }
 
 	void checkEdges(){
 		if(location.x > 500) {
@@ -80,7 +89,8 @@ class Mover{
   
   }
 
-	void checkCylinderCollision(ArrayList<PVector> cylinders){
+	void checkCylinderCollision(ArrayList<PVector> cylinders, float cylinderRad){
+  this.cylinderRadius = cylinderRad;
 		for(PVector p: cylinders){
        
       if ( radialDistanceFromBall(p) <=0){

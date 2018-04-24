@@ -9,14 +9,18 @@ float fovy = PI/3.0;
 	PShape cylinder;
 	ArrayList<PVector> cylinders;
   float rotationScale=1.0;
+  PVector cylinderScale;
 
 float rx=0 ;
 float rz=0 ;
 
 float boardX, boardY;
 
+
+
 boolean shiftMode;
 PGraphics gameSurface;
+PGraphics topView;
 
 Mover ball;
 
@@ -26,9 +30,11 @@ void settings() {
 
 void setup() {
 	noStroke();
-
+  
+  this.cylinderScale =new PVector(50,100,50);
+  
   gameSurface = createGraphics(width, (int)(height*0.8), P3D);
-
+  topView = createGraphics((int)(height*0.18),(int)(height*0.18),P2D);
 	ball =new Mover();
 	gravityForce= new PVector();
 	gravityConstant = -0.8;
@@ -43,8 +49,11 @@ void setup() {
 }
 
 void draw() {
+  background(700);
   drawGame(gameSurface);
   image(gameSurface,0,0);
+  topView(topView);
+  image(topView,10,(int)height*0.81);
 
 }
 
@@ -86,7 +95,7 @@ void run(PGraphics s){
 	ball.update();
 	ball.checkEdges();
 	//Working on this
-	ball.checkCylinderCollision(cylinders);
+	ball.checkCylinderCollision(cylinders, this.cylinderScale.x);
 	//End of Working on this
 	ball.display(s);
 
@@ -99,7 +108,7 @@ void run(PGraphics s){
     s.pushMatrix();
     
     s.translate(v.x,-100,v.z);
-    s.scale(100,100,100);
+    s.scale(cylinderScale.x,cylinderScale.y,cylinderScale.z);
     s.shape(cylinder);
     s.popMatrix();
   }
@@ -116,6 +125,8 @@ void run(PGraphics s){
 
 
   void shiftMode(PGraphics s){
+    
+    
       s.pushMatrix();
     //rotating on the X axis first so that this axis 
     //remains a global axis, and the Z axis will be a local axis
@@ -135,7 +146,7 @@ void run(PGraphics s){
       s.pushMatrix();
      s.rotateX(PI/2);
       s.translate(v.x,0,-v.z);
-      s.scale(100,100,100);
+      s.scale(cylinderScale.x,cylinderScale.y,cylinderScale.z);
       s.shape(cylinder);
       s.popMatrix();
     }
@@ -151,6 +162,49 @@ void run(PGraphics s){
 
 
   s.popMatrix();
+  
+  }
+  
+    void topView(PGraphics s){
+      s.beginDraw();
+      s.background(150);
+      s.pushMatrix();
+      s.stroke(0);
+    //rotating on the X axis first so that this axis 
+    //remains a global axis, and the Z axis will be a local axis
+
+    //ball's matrix
+    s.pushMatrix();
+    
+    //ball.display2D(s);
+    //s.fill(0);
+    //
+    s.fill(0);
+    ball.display2D(s,height*0.18);
+    s.popMatrix();
+
+    s.pushMatrix();
+  
+  
+    for (PVector v : cylinders){
+      
+      s.pushMatrix();
+      s.fill(255,255,255);
+      float x = map(v.x, -500.0,500.0, 0.0, height*0.18);
+      float z = map(v.z, -500.0,500.0, 0.0, height*0.18);
+      s.ellipse(x,z, s.width*cylinderScale.x/(boardX/2),s.height*cylinderScale.z/(boardY/2));
+      s.popMatrix();
+    }
+  
+  
+  
+    s.popMatrix();
+    
+
+
+
+  s.popMatrix();
+  s.endDraw();
   
   }
 
