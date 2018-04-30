@@ -2,7 +2,7 @@ PImage img;
 HScrollbar thresholdBarBrighness, thresholdBarHue;
 
 void settings() {
-  size(1600, 600);
+  size(1600, 1200);
 }
 
 void setup() {
@@ -38,7 +38,10 @@ void draw() {
 
   PImage result = convolute(img);
 
-  image(result, img.width, 0);
+  image(scharr(result), 0, img.height);
+  
+  image(threshold(result, 200), img.width, img.height);
+
 }
 
 
@@ -152,10 +155,33 @@ PImage scharr(PImage img) {
   }
 
   float max=0;
+  float normFactor = 1.0;
   float[] buffer = new float[img.width * img.height];
-    // *************************************
-    // Implement here the double convolution
-    // *************************************
+
+  for(int i = 1; i < img.height - 1; i++) { // for each (x,y) pixel in the image:
+    for(int j = 1; j < img.width - 1; j++) { // we start in 1 & finish in -1 to avoid borders
+      int sum_h = 0; 
+      int sum_v = 0; 
+
+      //HardCoded the size of the kernel
+      for (int u = -1; u <= 1; u++) { //To go through the kernelArray
+        for (int w = -1; w <= 1; w++) {
+          int x = j + u;
+          int y = i + w;
+          //if( x >= 0 && y >= 0 && x < img.width && y < img.height)
+            sum_h += hKernel[u+1][w+1] * brightness(img.pixels[x + y*img.width]);
+            sum_v += vKernel[u+1][w+1] * brightness(img.pixels[x + y*img.width]); 
+ 
+        }
+      }
+
+      // - sum all these intensities and divide it by normFactor
+      float sum = sqrt(pow(sum_h, 2) + pow(sum_v, 2));
+      buffer[j + i * img.width] = sum;
+      max = max(max, sum);
+    }
+  }
+
   for (int y = 2; y < img.height - 2; y++) { // Skip top and bottom edges
     for (int x = 2; x < img.width - 2; x++) { // Skip left and right
       int val=(int) ((buffer[y * img.width + x] / max)*255);
