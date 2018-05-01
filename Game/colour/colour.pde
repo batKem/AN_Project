@@ -52,7 +52,7 @@ void draw() {
 
   //image(scharr(img), img.width, img.height);
   //print(imagesEqual(img3, convolute(img)));
-  print(imagesEqual(img4, thresholdHSB(img, 100, 200, 100, 255, 45, 100)));
+  //print(imagesEqual(img4, thresholdHSB(img, 100, 200, 100, 255, 45, 100)));
 
 }
 
