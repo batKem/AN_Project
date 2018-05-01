@@ -1,3 +1,17 @@
+PImage img;
+
+void settings() {
+  size(1600, 1200);
+}
+
+void setup() {
+	img = loadImage("hough_test.bmp");
+}
+
+void draw(){
+	hough(img);
+}
+
 List<PVector> hough(PImage edgeImg) {
 
 	float discretizationStepsPhi = 0.06f; 
@@ -29,7 +43,7 @@ List<PVector> hough(PImage edgeImg) {
 		}
 	}
 
-	ArrayList<PVector> lines=new ArrayList<PVector>();
+	ArrayList<PVector> lines = new ArrayList<PVector>();
 	for (int idx = 0; idx < accumulator.length; idx++) {
 		if (accumulator[idx] > minVotes) {
 			// first, compute back the (r, phi) polar coordinates:
@@ -40,5 +54,23 @@ List<PVector> hough(PImage edgeImg) {
 			lines.add(new PVector(r,phi));
 		}
 	}
+
+
+		//**** Testing
+		PImage houghImg = createImage(rDim, phiDim, ALPHA);
+
+		for (int i = 0; i < accumulator.length; i++) { 
+			houghImg.pixels[i] = color(min(255, accumulator[i])); 
+		}
+
+		// You may want to resize the accumulator to make it easier to see: 
+		// houghImg.resize(400, 400);
+		
+		houghImg.updatePixels();
+		image(houghImg, 0, 0);//show image
+
+
+
+
 	return lines;
 }
