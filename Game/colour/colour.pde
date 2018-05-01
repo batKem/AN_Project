@@ -1,4 +1,4 @@
-PImage img;
+PImage img, img2, img3;
 HScrollbar thresholdBarBrighness, thresholdBarHue;
 
 void settings() {
@@ -7,6 +7,10 @@ void settings() {
 
 void setup() {
   img = loadImage("board1.jpg");
+  img2 = loadImage("board1Scharr.bmp");
+  img3 = loadImage("board1Blurred.bmp");
+    img4 = loadImage("board1Thresholded.bmp");
+
   thresholdBarBrighness = new HScrollbar(0, 580, 800, 20); //Upper one
   thresholdBarHue = new HScrollbar(0, 560, 800, 20);
 
@@ -36,11 +40,19 @@ void draw() {
   
   //PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
 
-  PImage result = convolute(img);
+  PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
+  image(result, img.width, 0);
 
-  image(scharr(result), 0, img.height);
+  result = convolute(result);
+  result = scharr(result);
+  image(result, 0, img.height);
   
-  image(threshold(result, 200), img.width, img.height);
+  result = threshold(result, 50);
+  image(result, img.width, img.height);
+
+  //image(scharr(img), img.width, img.height);
+  //print(imagesEqual(img3, convolute(img)));
+  print(imagesEqual(img4, thresholdHSB(img, 100, 200, 100, 255, 45, 100)));
 
 }
 
@@ -97,19 +109,19 @@ PImage thresholdHSB(PImage img, int minH, int maxH, int minS, int maxS, int minB
 }
 
 PImage convolute(PImage img) {
-  float[][] kernel = { { 0, 0, 0 },
+/*  float[][] kernel = { { 0, 0, 0 },
                         { 0, 2, 0 },
                         { 0, 0, 0 }};
-/*  float[][] kernel = { { 0, 1, 0 },
+  float[][] kernel = { { 0, 1, 0 },
                         { 1, 0, 1 },
                         { 0, 1, 0 }};*/
-/* //Gaussian blur
+  //Gaussian blur
   float[][] kernel = { { 9, 12, 9 },
                         { 12, 15, 12 },
                         { 9, 12, 9 }};
-  float normFactor = 99.f;*/
+  float normFactor = 99.f;
 
-  float normFactor = 1.f;
+//  float normFactor = 1.f;
 
   // create a greyscale image (type: ALPHA) for output
   PImage result = createImage(img.width, img.height, ALPHA);
