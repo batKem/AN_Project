@@ -49,6 +49,7 @@ class Mover{
 			velocity.z *= -0.5; 
 		}
     
+    score[0] = max(0, score[0]);
 		/*fixing a bug where the ball keeps falling out of range because
 			its speed kept being multiplied by -1 which led to negative speed values being
 			positive ones since gravity adds up*/
@@ -95,18 +96,19 @@ class Mover{
   }
 
 	void checkCylinderCollision(ArrayList<PVector> cylinders, float cylinderRad, int[] score){
-  this.cylinderRadius = cylinderRad;
-		for(PVector p: cylinders){
-       
-      if ( radialDistanceFromBall(p) <=0){
-        score[0] += (int)norm(velocity);
-        
-        location.add(locationCorrectionVector(p));
-        newVelocity(velocity, p);
+    this.cylinderRadius = cylinderRad;
+  		for(PVector p: cylinders){
+         
+        if ( radialDistanceFromBall(p) <=0){
+          score[0] += (int)norm(velocity);
+          
+          location.add(locationCorrectionVector(p));
+          newVelocity(velocity, p);
+          
+        }
         
       }
-      
-    }
-	}
+      score[0] = max(0, score[0]);
+  	}
 
 }

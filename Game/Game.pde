@@ -10,7 +10,8 @@ float fovy = PI/3.0;
 	ArrayList<PVector> cylinders;
   float rotationScale=1.0;
   PVector cylinderScale;
-  
+  Chart scoreChart;
+  HScrollbar scrollBar;
 
 float rx=0 ;
 float rz=0 ;
@@ -24,6 +25,8 @@ PGraphics gameSurface;
 PGraphics topView;
 PGraphics scoreText;
 PGraphics scorePanel;
+PGraphics scrollBarPanel;
+
 
 Mover ball;
 
@@ -35,12 +38,17 @@ void setup() {
 	noStroke();
   score = new int[1];
   
+  scoreChart = new Chart(5,1,10);
+  scrollBar = new HScrollbar(310,((int)height*0.96),(height*0.68),(height*0.03));
+  
+  
   this.cylinderScale =new PVector(50,100,50);
   
   gameSurface = createGraphics(width, (int)(height*0.8), P3D);
   topView = createGraphics((int)(height*0.18),(int)(height*0.18),P2D);
   scoreText = createGraphics((int)(height*0.1),(int)(height*0.18),P2D);
-  scorePanel = createGraphics((int)(height*0.68),(int)(height*0.18),P2D);
+  scorePanel = createGraphics((int)(height*0.68),(int)(height*0.15),P2D);
+
 	ball =new Mover();
 	gravityForce= new PVector();
 	gravityConstant = -0.8;
@@ -64,7 +72,9 @@ void draw() {
   image(scoreText,200,(int)height*0.81);
   scorePanel(scorePanel);
   image(scorePanel,310,(int)height*0.81);
-
+   scrollBar.display();
+   scrollBar.update();
+  
 }
 
 void drawGame(PGraphics s){
@@ -234,8 +244,19 @@ void run(PGraphics s){
       s.background(150);
       
       s.stroke(0);
-      s.text("scorePanel",10,10);
-
+     //s.text("scorePanel",10,10);
+      scoreChart.update(score[0]);
+      scoreChart.render(s, (scrollBar.getPos()));
+      s.endDraw();
+  
+  }
+   void scrollBar(PGraphics s){
+      s.beginDraw();
+      s.background(150);
+      
+      s.stroke(0);
+      scrollBar.display();
+      //scrollBar.update();
       s.endDraw();
   
   }
@@ -264,9 +285,9 @@ void keyReleased(){
 } 
 
 void mouseClicked(){
-	if(shiftMode){
-		
-    if (mouseY< gameSurface.height){
+	if(shiftMode  && mouseY < width*0.8){
+		//print(
+    
     
 		float mx = map(mouseX,0,gameSurface.width,- boardX,boardX);
 		float my = map(mouseY,0,gameSurface.height,-boardY*( gameSurface.height/(float)gameSurface.width),
@@ -274,20 +295,20 @@ void mouseClicked(){
     mx = min(boardX/2,max(-boardX/2, mx));
     my = min(boardY/2,max(-boardY/2, my));
 		cylinders.add(new PVector(mx,0,my));}
-	}
+	
 }
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
-  if( e !=0){
+  if( e !=0  && mouseY < width*0.8){
   float sign = e/ abs(e);
   rotationScale += 0.05*sign;
   rotationScale = min( 2,max(0.1, rotationScale));}
-  print(rotationScale);
+ 
 }
 
 void mouseDragged(){
-	if (!shiftMode){
+	if (!shiftMode && mouseY < width*0.8){
 		rx+= radians((mouseX-pmouseX)*rotationScale) ;
 
 		//bounderies
