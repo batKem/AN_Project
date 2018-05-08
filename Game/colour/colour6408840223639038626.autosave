@@ -1,0 +1,134 @@
+PImage img;
+HScrollbar thresholdBarBrighness, thresholdBarHue;
+
+void settings() {
+  size(1600, 600);
+}
+
+void setup() {
+  img = loadImage("board1.jpg");
+  thresholdBarBrighness = new HScrollbar(0, 580, 800, 20); //Upper one
+  thresholdBarHue = new HScrollbar(0, 560, 800, 20);
+
+
+  //noLoop(); // no interactive behaviour: draw() will be called only once.
+}
+
+
+void draw() {
+    image(img, 0, 0);//show image
+
+    /*PImage img2 = img.copy();//make a deep copy
+      img2.loadPixels();// load pixels
+      for (int x = 0; x < img2.width; x++)
+        for (int y = 0; y < img2.height; y++)
+          if (y%2==0)
+            img2.pixels[y*img2.width+x] = color(0, 255, 0);
+      img2.updatePixels();//update pixels
+      image(img2, img.width, 0);*/
+
+/*  //For the SCROLLBAR
+  thresholdBarBrighness.display();
+  thresholdBarBrighness.update();  
+  thresholdBarHue.display();
+  thresholdBarHue.update();*/
+
+  //PImage result = threshold(img, 255, thresholdBarBrighness.getPos(), 255, thresholdBarHue.getPos());
+  
+  //PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
+
+  PImage result = convolute(img);
+
+  image(result, img.width, 0);
+}
+
+
+PImage threshold(PImage img, int thresholdBarBrighness){ 
+//Only take the pixels that are above/below a certain level of brightness
+  // create a new, initially transparent, 'result' image
+  PImage result = createImage(img.width, img.height, RGB);
+
+  for(int i = 0; i < img.width * img.height; i++) {
+    //Go through the pixels[], pixel by pixel, those that are above/below 
+      //the threshold will remain, the others will now be null
+    if (brightness(img.pixels[i]) <= thresholdBarBrighness)
+    //if (brightness(img.pixels[i]) >= threshold) //Above threshold
+      result.pixels[i] = img.pixels[i];
+  }
+
+  return result;
+}
+
+PImage threshold(PImage img, double thresholdBarBrighness, double scrollFactorBrightness,
+         double thresholdBarHue, double scrollFactorHue){ 
+//Only take the pixels that are above/below a certain level of brightness
+  // create a new, initially transparent, 'result' image
+  PImage result = createImage(img.width, img.height, RGB);
+
+  int newThresholdBrightness = (int) (thresholdBarBrighness*scrollFactorBrightness);
+  int newThresholdHue = (int) (thresholdBarHue*scrollFactorHue);
+
+  for(int i = 0; i < img.width * img.height; i++) {
+    //Go through the pixels[], pixel by pixel, those that are above/below 
+      //the threshold will remain, the others will now be null
+    if (brightness(img.pixels[i]) <= newThresholdBrightness && hue(img.pixels[i]) <= newThresholdHue)
+    //if (brightness(img.pixels[i]) >= threshold) //Above threshold
+      result.pixels[i] = img.pixels[i];
+  }
+
+  return result;
+}
+
+PImage thresholdHSB(PImage img, int minH, int maxH, int minS, int maxS, int minB, int maxB){
+  // create a new, initially transparent, 'result' image
+  PImage result = createImage(img.width, img.height, RGB); 
+
+  for(int i = 0; i < img.width * img.height; i++) {
+    float h = hue(img.pixels[i]);
+    float s = saturation(img.pixels[i]);
+    float b = brightness(img.pixels[i]);
+
+    result.pixels[i] = ((h >= minH && h <= maxH && s >= minS && s <= maxS && b >= minB && b <= maxB) ? color(255) : color(0));
+  }
+
+  return result;
+}
+
+PImage convolute(PImage img) {
+  float[][] kernel = { { 0, 0, 0 },
+                        { 0, 2, 0 },
+                        { 0, 0, 0 }};
+  float normFactor = 1.f;
+
+  // create a greyscale image (type: ALPHA) for output
+  PImage result = createImage(img.width, img.height, ALPHA);
+
+  int kernelSize = kernel.length;// kernel size N = 3
+
+  for(int i = 1; i < img.width - 1; i++) { // for each (x,y) pixel in the image:
+    for(int j = 1; j < img.height - 1; j++) { // we start in 1 & finish in -1 to aboid borders
+      int r = 0; 
+      for (int x = -1; x <= 1;) {
+        for (int y = -1; y <= 1;) {
+          r +=  brightness(img.pixels[x + y * img.width] * kernel[++y][++x]); // - multiply intensities for pixels in the range
+        }
+      }
+      // - sum all these intensities and divide it by normFactor
+      result.pixels[x + y * img.width] = color(r / normFactor); // - set result.pixels[y * img.width + x] to this value
+    }
+  }
+
+  return result;
+}
+
+
+// Auxiliar functions //
+boolean imagesEqual(PImage img1, PImage img2){
+  if(img1.width != img2.width || img1.height != img2.height)
+    return false;
+  for(int i = 0; i < img1.width*img1.height ; i++)
+  //assuming that all the three channels have the same value
+  if(red(img1.pixels[i]) != red(img2.pixels[i]))
+    return false;
+  return true;
+}
