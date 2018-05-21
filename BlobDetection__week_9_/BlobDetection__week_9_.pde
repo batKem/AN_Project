@@ -4,22 +4,22 @@ import java.util.TreeSet;
 
 
 // To test algorithm on "BlobDection_Test.png"
-/*
+
 PImage img;
 void settings() {
-        size(200, 200 ,P3D);
+        size(1000, 1000 ,P3D);
 }
 void setup() {
-   img = loadImage("BlobDetection_Test.png");
+   img = loadImage("board1Thresholded.bmp");
     noLoop();
  
 }
 void draw() {
   BlobDetection test = new BlobDetection();
-  PImage img2 = test.findConnectedComponents(img, false); //or 'true' to colour only the biggest blob
+  PImage img2 = test.findConnectedComponents(img, true); //or 'true' to colour only the biggest blob
         image(img2, 0, 0);
     }
-*/
+
 
  class BlobDetection {
   PImage findConnectedComponents(PImage input, boolean onlyBiggest){
@@ -31,6 +31,7 @@ void draw() {
         
     int currentLabel = 1;
     labelsEquivalences.add(new TreeSet<Integer>());
+    //labelsEquivalences.get(0).add(1);
     
     input.loadPixels();
     int n1 = 0;
@@ -69,16 +70,22 @@ void draw() {
           
           if(n1 == 0 && n2 == 0 && n3 == 0 && n4 == 0){
             labels[i + j*input.width] = currentLabel;
-          
-            currentLabel++;
+           
+           //System.out.println("labels["+i +","+j+"]   " + labels[i + j*input.width]);
+           
+           currentLabel++;
             
            labelsEquivalences.add(new TreeSet<Integer>());
+           labelsEquivalences.get(currentLabel-1).add(currentLabel);
+           
+          
 
           } else {
             //keeping the ones that aren't 0
               int n12 = 0;
               int n34 = 0;
               int n1234 = 0;
+              System.out.println(n1+" "+n2+" "+n3+" "+n4);
               if (n1 != 0){
                 if (n2 != 0){
                    n12 = Math.min(n1,n2);
@@ -95,7 +102,7 @@ void draw() {
               } else if(n12 != 0){n1234 = n12;}
                 else {n1234 = n34;}
             
-            
+            //System.out.println("min " +n1234);
             labels[i + j*input.width] = n1234;
             
             if(n1 != 0) labelsEquivalences.get(n1 -1).add(n1234);
@@ -113,16 +120,32 @@ void draw() {
     
 
     int [] countArray = new int [currentLabel];
-  
-
+    
+    //System.out.println();
+    //for (int j = 0; j < 3; j++){
     for(int i = 0; i < labels.length ; i++) {
       if(input.pixels[i] >= -1) {
-        labels[i] = labelsEquivalences.get(labels[i]-1).first();
+        
+        
+        int prev = labels[i];
+        int next = 0;
+        boolean check = false;
+        
+        while(!check){
+          next = labelsEquivalences.get(prev-1).first();
+          if (next != prev) {
+            prev = next;
+          } else {check = true;}
+        }
+        
+        labels[i] = next;
+        
+        
         if(onlyBiggest) {countArray[labels[i]-1]++;}
       }
+    //}
     }
-    
-   
+  
     
     // Finally,
     // if onlyBiggest==false, output an image with each blob colored in one uniform color
@@ -159,6 +182,7 @@ void draw() {
         }
       }
     }
+    
     
     return output;
       
