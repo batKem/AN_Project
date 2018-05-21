@@ -10,13 +10,13 @@ void settings() {
         size(1000, 1000 ,P3D);
 }
 void setup() {
-   img = loadImage("board1Thresholded.bmp");
+   img = loadImage("board1Scharr.bmp");
     noLoop();
  
 }
 void draw() {
   BlobDetection test = new BlobDetection();
-  PImage img2 = test.findConnectedComponents(img, true); //or 'true' to colour only the biggest blob
+  PImage img2 = test.findConnectedComponents(img, false); //or 'true' to colour only the biggest blob
         image(img2, 0, 0);
     }
 
@@ -31,7 +31,7 @@ void draw() {
         
     int currentLabel = 1;
     labelsEquivalences.add(new TreeSet<Integer>());
-    //labelsEquivalences.get(0).add(1);
+    labelsEquivalences.get(0).add(1);
     
     input.loadPixels();
     int n1 = 0;
@@ -85,7 +85,7 @@ void draw() {
               int n12 = 0;
               int n34 = 0;
               int n1234 = 0;
-              System.out.println(n1+" "+n2+" "+n3+" "+n4);
+             ;
               if (n1 != 0){
                 if (n2 != 0){
                    n12 = Math.min(n1,n2);
@@ -102,7 +102,7 @@ void draw() {
               } else if(n12 != 0){n1234 = n12;}
                 else {n1234 = n34;}
             
-            //System.out.println("min " +n1234);
+            
             labels[i + j*input.width] = n1234;
             
             if(n1 != 0) labelsEquivalences.get(n1 -1).add(n1234);
