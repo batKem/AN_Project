@@ -10,7 +10,7 @@ void settings() {
         size(1000, 1000 ,P3D);
 }
 void setup() {
-   img = loadImage("board1Scharr.bmp");
+   img = loadImage("week8.bmp");
     noLoop();
  
 }

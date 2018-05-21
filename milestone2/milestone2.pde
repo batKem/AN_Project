@@ -1,38 +1,60 @@
 import java.util.*;
 
-PImage img, img1, img2, img3;
 ArrayList<Integer> bestCandidates;
+PImage img0, img1, img2, img3;
+
 
 void settings() {
-  size(2400, 600);
+  size(1800, 450);
 }
 
 void setup() {
-  img = loadImage("board1.jpg");
+
 }
 
 void draw(){
+  List<PVector> lines, corners;
+  QuadGraph qGraph = new QuadGraph();
+  
+  img0 = loadImage("board1.jpg");
+  img0.resize(600, 0);
+
   //Week8
-  img2 = thresholdHSB(img, 90, 138, 80, 255, 17, 190);
-  img2 = convolute(img2);
-  img2 = scharr(img2);
-  img2 = threshold(img2, 130); //Take off pixels with low brightness
+  img2 = thresholdHSB(img0, 90, 138, 80, 255, 17, 190); //H/B/S thresholding
+  img2.save("thresholdHSB.png");
+  img2 = convolute(img2); //Blurring
+  img2 = scharr(img2); //Edge Detection
+  img2 = threshold(img2, 130); //Supression low bright pixels
   //Week8
 
   //Week9
-  img3 = findConnectedComponents(img2, false);
+  img3 = findConnectedComponents(loadImage("thresholdHSB.png"), false);
   //Week9
 
-  List<PVector> lines = hough(img2, 8);
-  drawLines(img2, lines);
+  //Week10 - PipeLine
+  img1 = thresholdHSB(img0, 90, 138, 80, 255, 17, 190); //H/B/S thresholding
+  img1 = findConnectedComponents(img1, false);
+  img1 = convolute(img1); //Blurring
+  img1 = scharr(img1); //Edge Detection
+  img1 = threshold(img1, 130); //Supression low bright pixels
+  lines = hough(img1, 4); //Hough transform
+  corners = qGraph.findBestQuad(lines, img1.width, img1.height, 200000, 30000, false);
+  //Week10
 
-  //Plot week8
-  image(img2, 800, 0);
-  img2.save("week8_board1.jpg");
+  //Plot week10
+  drawLines(img0, lines);
+  for(int i = 0; i < 4; i++){
+    fill(40, 50.);
+    ellipse(corners.get(i).x, corners.get(i).y, 30, 30);
+  }
+  //Plot week10
+  
+    //Plot week8
+  image(img2, 600, 0);
   //Plot week8
 
   //Plot week9
-  image(img3, 1600, 0);
+  image(img3, 1200, 0);
   //Plot week9
 }
 
@@ -40,7 +62,7 @@ List<PVector> hough(PImage edgeImg, int nLines) {
 
   float discretizationStepsPhi = 0.06f; 
   float discretizationStepsR = 2.5f; 
-  int minVotes = 50;
+  int minVotes = 20;
 
   // dimensions of the accumulator
   int phiDim = (int) (Math.PI / discretizationStepsPhi +1);
@@ -100,24 +122,11 @@ List<PVector> hough(PImage edgeImg, int nLines) {
         bestCandidates.add(idx);
     }
   }
-/*
-   ArrayList<Integer> nonBestCandidates = new  ArrayList<Integer>();
 
-  for (Integer idx : bestCandidates) {
-    for (int i = - size; i <= size; i++) {
-      for (int j = -size; j <= size; j++) {
-        int idx2 = idx + i + j*rDim;
-        if (bestCandidates.contains(idx2)){
-          if (accumulator[idx]<accumulator[idx2])
-            nonBestCandidates.add(idx);
-        }
-      }
-    }
-  }
-
-  bestCandidates.remove(nonBestCandidates);
-*/
   Collections.sort(bestCandidates, new HoughComparator(accumulator));
+
+  if (nLines > bestCandidates.size())
+    nLines = bestCandidates.size();
 
   for (int i = 0; i < nLines; i++) {
     int idx = bestCandidates.get(i);
@@ -128,19 +137,6 @@ List<PVector> hough(PImage edgeImg, int nLines) {
     float phi = accPhi * discretizationStepsPhi;
     lines.add(new PVector(r,phi));
   }
-
-    //**** Testing
-    PImage houghImg = createImage(rDim, phiDim, ALPHA);
-
-    for (int i = 0; i < accumulator.length; i++) { 
-      houghImg.pixels[i] = color(min(255, accumulator[i])); 
-    }
-
-    // You may want to resize the accumulator to make it easier to see: 
-    houghImg.resize(400, 400);
-    
-    houghImg.updatePixels();
-    image(houghImg, 0, 0);//show image
 
   return lines;
 }
@@ -305,7 +301,6 @@ PImage scharr(PImage img) {
 }
 
 PImage findConnectedComponents(PImage input, boolean onlyBiggest){
-    
     // First pass: label the pixels and store labels' equivalences
     
     int [] labels = new int [input.width*input.height];
@@ -331,6 +326,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest){
 
         // white is value -1
         if(input.get(i, j) >= -1) { 
+          
           //check neighbour 1
           if(i > 0 && j > 0){
             n1 = labels[i-1+ (j-1)*input.width];
@@ -349,11 +345,12 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest){
           }
           
           if(n1 == 0 && n2 == 0 && n3 == 0 && n4 == 0){
-            labels[i + j*input.width] = currentLabel;           
-            currentLabel++;
+            labels[i + j*input.width] = currentLabel;
+
+           currentLabel++;
             
-            labelsEquivalences.add(new TreeSet<Integer>());
-            labelsEquivalences.get(currentLabel-1).add(currentLabel);
+           labelsEquivalences.add(new TreeSet<Integer>());
+           labelsEquivalences.get(currentLabel-1).add(currentLabel);
           } else {
             //keeping the ones that aren't 0
               int n12 = 0;
@@ -361,26 +358,21 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest){
               int n1234 = 0;
              ;
               if (n1 != 0){
-                if (n2 != 0)
+                if (n2 != 0){
                    n12 = Math.min(n1,n2);
-                else
-                  n12 = n1;
-              } else if(n2!= 0)
-                n12 = n2;
+                } else { n12 = n1;
+                }
+              } else if(n2!= 0){ n12 = n2;}
               if (n3 != 0){
-                if (n4 != 0)
+                if (n4 != 0){
                    n34 = Math.min(n3,n4);
-                else
-                  n34 = n3;
-              } else if(n4!= 0)
-                  n34 = n4;
-            if ((n12 !=0) && (n34 != 0))
-              n1234 = Math.min(n12,n34);
-            else if(n12 != 0) 
-              n1234 = n12;
-            else
-              n1234 = n34;
-
+                } else { n34 = n3;
+                }
+              } else if(n4!= 0){ n34 = n4;}
+            if ((n12 !=0) && (n34 != 0)) { n1234 = Math.min(n12,n34);
+              } else if(n12 != 0){n1234 = n12;}
+                else {n1234 = n34;}
+            
             labels[i + j*input.width] = n1234;
             
             if(n1 != 0) labelsEquivalences.get(n1 -1).add(n1234);
@@ -390,34 +382,35 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest){
          }
       }
     }
-  }
-      
+    }
         
     // Second pass: re-label the pixels by their equivalent class
     // if onlyBiggest==true, count the number of pixels for each label
     int [] countArray = new int [currentLabel];
     
+    //System.out.println();
+    //for (int j = 0; j < 3; j++){
     for(int i = 0; i < labels.length ; i++) {
-      if(input.pixels[i] >= -1) {        
+      if(input.pixels[i] >= -1) {
         int prev = labels[i];
         int next = 0;
         boolean check = false;
         
         while(!check){
           next = labelsEquivalences.get(prev-1).first();
-          if (next != prev)
+          if (next != prev) {
             prev = next;
-          else
-            check = true;
+          } else {check = true;}
         } // iterating through equivalences
         
         labels[i] = next;
         
-        if(onlyBiggest) 
-          countArray[labels[i]-1]++;
+        
+        if(onlyBiggest) {countArray[labels[i]-1]++;}
       }
     }
   
+    
     // Finally,
     // if onlyBiggest==false, output an image with each blob colored in one uniform color
     // if onlyBiggest==true, output an image with the biggest blob colored in white and the others in black
@@ -438,6 +431,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest){
         if (countArray[n] > count) {
           maxIndex = n;
           count = countArray[n];
+          
         }
       }
       
@@ -445,15 +439,15 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest){
       for(int j = 0 ; j < output.height ; j++) {
         for(int i = 0 ; i < output.width ; i++) {
           int l = labels[i + j*output.width];
-          if (l == biggestBlobLabel)
+          if (l == biggestBlobLabel) {
             output.pixels[i + j*output.width] = color(255, 255, 255); //if pixel is from biggest blob, colour in white, otherwise black
-          else 
-            output.pixels[i + j*output.width] = color(0, 0, 0);
+          } else { output.pixels[i + j*output.width] = color(0, 0, 0); }
+          
         }
       }
-    }    
-
-    return output;    
+    }
+    
+    return output;
   }
 
 class HoughComparator implements java.util.Comparator<Integer> { 
