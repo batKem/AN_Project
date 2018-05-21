@@ -1,4 +1,4 @@
-PImage img, img2, img3;
+PImage img, img2, img3, img4;
 HScrollbar thresholdBarBrighness, thresholdBarHue;
 
 void settings() {
@@ -9,7 +9,7 @@ void setup() {
   img = loadImage("board1.jpg");
   img2 = loadImage("board1Scharr.bmp");
   img3 = loadImage("board1Blurred.bmp");
-    img4 = loadImage("board1Thresholded.bmp");
+  img4 = loadImage("board1Thresholded.bmp");
 
   thresholdBarBrighness = new HScrollbar(0, 580, 800, 20); //Upper one
   thresholdBarHue = new HScrollbar(0, 560, 800, 20);
@@ -40,14 +40,14 @@ void draw() {
   
   //PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
 
-  PImage result = thresholdHSB(img, 100, 200, 100, 255, 45, 100);
+  PImage result = thresholdHSB(img, 90, 138, 70, 255, 17, 190);
   image(result, img.width, 0);
 
   result = convolute(result);
   result = scharr(result);
   image(result, 0, img.height);
   
-  result = threshold(result, 50);
+  result = threshold(result, 130);
   image(result, img.width, img.height);
 
   //image(scharr(img), img.width, img.height);
@@ -65,9 +65,11 @@ PImage threshold(PImage img, int thresholdBarBrighness){
   for(int i = 0; i < img.width * img.height; i++) {
     //Go through the pixels[], pixel by pixel, those that are above/below 
       //the threshold will remain, the others will now be null
-    if (brightness(img.pixels[i]) <= thresholdBarBrighness)
+    if (brightness(img.pixels[i]) >= thresholdBarBrighness)
     //if (brightness(img.pixels[i]) >= threshold) //Above threshold
       result.pixels[i] = img.pixels[i];
+    else
+      result.pixels[i] = color(0);
   }
 
   return result;
