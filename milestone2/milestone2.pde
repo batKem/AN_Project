@@ -1,23 +1,24 @@
 import java.util.*;
+import gab.opencv.*;
 
+OpenCV opencv;
 ArrayList<Integer> bestCandidates;
 PImage img0, img1, img2, img3;
 
 
 void settings() {
-  size(1800, 450);
+  size(2400, 600);
 }
 
 void setup() {
-
+  opencv = new OpenCV(this, 100, 100);
 }
 
 void draw(){
   List<PVector> lines, corners;
   QuadGraph qGraph = new QuadGraph();
-  
-  img0 = loadImage("board1.jpg");
-  img0.resize(600, 0);
+/*  
+  img0 = loadImage("board4.jpg");
 
   //Week8
   img2 = thresholdHSB(img0, 90, 138, 80, 255, 17, 190); //H/B/S thresholding
@@ -36,26 +37,74 @@ void draw(){
   img1 = findConnectedComponents(img1, false);
   img1 = convolute(img1); //Blurring
   img1 = scharr(img1); //Edge Detection
-  img1 = threshold(img1, 130); //Supression low bright pixels
-  lines = hough(img1, 4); //Hough transform
-  corners = qGraph.findBestQuad(lines, img1.width, img1.height, 200000, 30000, false);
+  img1 = threshold(img1, 80); //Supression low bright pixels
+    // image(img1, 800, 0);
+  lines = hough(img1, 5); //Hough transform
+  corners = qGraph.findBestQuad(lines, img1.width, img1.height, 280000, 30000, false);
   //Week10
 
   //Plot week10
   drawLines(img0, lines);
-  for(int i = 0; i < 4; i++){
-    fill(40, 50.);
-    ellipse(corners.get(i).x, corners.get(i).y, 30, 30);
-  }
+  if (corners.size () > 0){
+    for(int i = 0; i < 4; i++){
+      fill(40, 50.);
+      ellipse(corners.get(i).x, corners.get(i).y, 30, 30);
+    }
+  }*/
   //Plot week10
   
-    //Plot week8
-  image(img2, 600, 0);
+/*  //Plot week8
+  image(img2, 800, 0);
   //Plot week8
 
   //Plot week9
-  image(img3, 1200, 0);
-  //Plot week9
+  image(img3, 1600, 0);
+  //Plot week9*/
+
+
+
+  TwoDThreeD twoDThreeD = new TwoDThreeD(800, 600, 0);
+  System.out.println("Checking rotation.");
+
+  for (int i = 1; i < 5; i++){
+    String nameImage = "board" + i + ".jpg";
+    img0 = loadImage(nameImage);
+
+    img1 = thresholdHSB(img0, 90, 138, 80, 255, 17, 190); //H/B/S thresholding
+    img1 = findConnectedComponents(img1, false);
+    img1 = convolute(img1); //Blurring
+    img1 = scharr(img1); //Edge Detection
+    img1 = threshold(img1, 80); //Supression low bright pixels
+    lines = hough(img1, 5); //Hough transform
+
+    corners = qGraph.findBestQuad(lines, img1.width, img1.height, 280000, 30000, false);
+
+    for (int j = 0; j < corners.size(); j++)
+      corners.get(j).z = 1.;
+
+    drawLines(img0, lines);
+    for(int j = 0; j < 4; j++){
+      fill(40, 50.);
+      ellipse(corners.get(j).x, corners.get(j).y, 30, 30);
+    }
+
+    PVector rotations = twoDThreeD.get3DRotations(corners);
+    System.out.print(nameImage + " ");
+
+    System.out.print(normalDegrees(rotations.x * 180/(PI)) + " ");
+    System.out.print(normalDegrees(rotations.y * 180/(PI)) + " ");
+    System.out.println(normalDegrees(rotations.z * 180/(PI)) + " ");
+  }
+
+}
+
+double normalDegrees(double n){
+  if (n > 90)
+    return n - 180;
+  else if (n < -90) 
+    return n + 180;
+  else 
+    return n;
 }
 
 List<PVector> hough(PImage edgeImg, int nLines) {
