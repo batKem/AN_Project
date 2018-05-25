@@ -97,6 +97,8 @@ class Mover{
 
 	void checkCylinderCollision(ArrayList<PVector> cylinders, float cylinderRad, int[] score){
     this.cylinderRadius = cylinderRad;
+
+    ArrayList<PVector> toDeleteCyl = new ArrayList<PVector>();
   		for(PVector p: cylinders){
          
         if ( radialDistanceFromBall(p) <=0){
@@ -105,9 +107,11 @@ class Mover{
           location.add(locationCorrectionVector(p));
           newVelocity(velocity, p);
           
+          toDeleteCyl.add(p);
         }
         
       }
+      cylinders.removeAll(toDeleteCyl);
       score[0] = max(0, score[0]);
   	}
 

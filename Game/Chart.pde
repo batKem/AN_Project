@@ -53,7 +53,7 @@ class Chart{
   
   void renderBars(ArrayList<Integer> dataSet, PGraphics s, float hnb ){
     int horizontalIndex =0;
-    print(hnb+"\n");
+    
    
     
     for (int index = 0; index< dataSet.size(); index++){

@@ -1,6 +1,6 @@
 float depth = 2000.0;
 float fovy = PI/3.0;
-
+ImageProcessing imgproc;
 
 
 //global rotation values
@@ -35,6 +35,13 @@ void settings() {
 }
 
 void setup() {
+  //To call webcam
+  imgproc = new ImageProcessing();
+  String []args = {"Image processing window"};
+  PApplet.runSketch(args, imgproc);
+  delay(3500);
+  //To call webcam
+
 	noStroke();
   score = new int[1];
   
@@ -63,6 +70,10 @@ void setup() {
 }
 
 void draw() {
+  //To call webcam
+  // PVector rot = imgproc.getRotation();
+  //To call webcam
+
   background(700);
   drawGame(gameSurface);
   image(gameSurface,0,0);
@@ -74,6 +85,30 @@ void draw() {
   image(scorePanel,310,(int)height*0.81);
    scrollBar.display();
    scrollBar.update();
+
+
+
+
+
+
+       PVector rots= imgproc.getRotation();
+
+    if (rots != null){
+      System.out.println("Printing R.x" + rots.x);
+
+      //I think it shouldnt be += but =
+      rx= rots.x;
+      // rx+= radians((mouseX-pmouseX)*rotationScale) ;
+      rz= rots.y; //In Week12 - 2 its said that we have to use x & y, no mention for z
+      // rz+= radians(-(mouseY-pmouseY)*rotationScale);
+      
+
+      //bounderies
+      rx = min(1,max(rx,-1)); //60º == 1 radian
+      rz = min(1,max(rz,-1));
+    }
+    else
+      System.out.println("nulllll");
   
 }
 
@@ -116,9 +151,7 @@ void run(PGraphics s){
   
   
 	ball.checkEdges(score);
-	//Working on this
 	ball.checkCylinderCollision(cylinders, this.cylinderScale.x,score);
-	//End of Working on this
 	ball.display(s);
 
 	s.popMatrix();
@@ -308,13 +341,26 @@ void mouseWheel(MouseEvent event) {
 }
 
 void mouseDragged(){
+
 	if (!shiftMode && mouseY < width*0.8){
-		rx+= radians((mouseX-pmouseX)*rotationScale) ;
+    PVector rots= imgproc.getRotation();
 
-		//bounderies
-		rx = min( radians(60),max(rx,radians(-60)));
+    if (rots != null){
+      System.out.println("Printing R.x" + rots.x);
 
-		rz+= radians(-(mouseY-pmouseY)*rotationScale);
-		rz = min( radians(60),max(rz,radians(-60)));
+      rx= rots.x;
+      rz= rots.z;
+      
+      // rx+= radians((mouseX-pmouseX)*rotationScale) ;
+
+      //bounderies
+      rx = min( radians(60),max(rx,radians(-60)));
+
+      // rz+= radians(-(mouseY-pmouseY)*rotationScale);
+      rz = min( radians(60),max(rz,radians(-60)));
+    }
+    else
+      System.out.println("nulllll");
+
 	}
 }
