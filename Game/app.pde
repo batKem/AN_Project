@@ -1,45 +1,32 @@
 	import java.util.*;
-	import gab.opencv.*;
+
 	import processing.video.*;
 
 class ImageProcessing extends PApplet {
 
-	OpenCV opencv;
-	Capture cam;
+
+  Movie cam;
 	PImage img;
 	  	ArrayList<Integer> bestCandidates;
-
+  public ImageProcessing(Movie m){
+  
+  this.cam = m;
+  }
 
 void settings() {
 	size(640, 480);
 }
 
 	void setup() {
-	  opencv = new OpenCV(this, 100, 100);
+    
+    cam.loop();
+  
 
-	  	String[] cameras = Capture.list();
-		
-
-	  if (cameras.length == 0) {
-		println("There are no cameras available for capture.");
-		exit();
-	  } else {
-		println("Available cameras:");
-		for (int i = 0; i < cameras.length; i++) {
-			println(cameras[i]);
-		}
-		//If you're using gstreamer0.1 (Ubuntu 16.04 and earlier),
-		//select your predefined resolution from the list:
-		cam = new Capture(this, cameras[0]);
-		//If you're using gstreamer1.0 (Ubuntu 16.10 and later),
-		//select your resolution manually instead:
-		//cam = new Capture(this, 640, 480, cameras[0]);
-		cam.start();
-	  }
 	}
 
 	void draw(){
 		//Camera
+
 		if (cam.available() == true) 
 			cam.read(); 
 		img = cam.get(); 
@@ -47,7 +34,7 @@ void settings() {
 		//Camera
 	}
 
-	public PVector getRotation(){
+	public PVector getRotation(PImage img){
 		List<PVector> lines, corners;
 		QuadGraph qGraph = new QuadGraph();
 		TwoDThreeD twoDThreeD = new TwoDThreeD(img.width, img.height, 30);
@@ -60,15 +47,16 @@ void settings() {
 	    lines = hough(img, 4); //Hough transform
 
 	    corners = qGraph.findBestQuad(lines, img.width, img.height, 280000, 30000, false);
-
+     
 	    if (corners.size() != 0){
+        corners = qGraph.sortCorners((ArrayList<PVector>)corners);
 		   	for (int j = 0; j < corners.size(); j++)
 		      corners.get(j).z = 1.;
 
 		    PVector rotations = twoDThreeD.get3DRotations(corners);
-
+        
 	    	rotations.x = normalDegrees(rotations.x);
-			rotations.y = normalDegrees(rotations.y);
+			  rotations.y = normalDegrees(rotations.y);
 	    	rotations.z = normalDegrees(rotations.z);
 
 		    return rotations;
@@ -87,6 +75,26 @@ void settings() {
 	  else 
 	    return (float) n;
 	}
+  /*
+  ArrayList<PVector> clockWhiseSort(ArrayList<PVector> corners){
+    
+    
+    PVector corner1 = corners.get(0);
+    PVector corner2 = corners.get(2);
+    PVector midCorner = new PVector( (corner1.x+corner2.x)/2.0, (corner1.y+corner2.y)/2.0 );
+    Collections.sort(corners, new CWComparator(midCorner));
+    
+    PVector origin =new PVector(0, 0);
+    float distance = 1000;
+    for (PVector corner :corners){
+      distance = (corner.dist(origin)< distance)? corner.dist(origin):distance;
+    }
+    while(corners.get(0).dist(origin) != distance){
+      Collections.rotate(corners,1);
+    }
+    return corners;
+    
+  }*/
 
 	List<PVector> hough(PImage edgeImg, int nLines) {
 

@@ -1,3 +1,8 @@
+import gab.opencv.*;
+
+
+import processing.video.*;
+
 float depth = 2000.0;
 float fovy = PI/3.0;
 ImageProcessing imgproc;
@@ -28,6 +33,8 @@ PGraphics scorePanel;
 PGraphics scrollBarPanel;
 
 
+Movie m;
+
 Mover ball;
 
 void settings() {
@@ -35,8 +42,16 @@ void settings() {
 }
 
 void setup() {
+  OpenCV opencv = new OpenCV(this, 100, 100);
+  
+  m= new Movie(this, "testvideo.avi");
+  m.loop();
+  
+  boardX = 600;
+  boardY = 600;
+  
   //To call webcam
-  imgproc = new ImageProcessing();
+  imgproc = new ImageProcessing(m);
   String []args = {"Image processing window"};
   PApplet.runSketch(args, imgproc);
   delay(3500);
@@ -56,15 +71,14 @@ void setup() {
   scoreText = createGraphics((int)(height*0.1),(int)(height*0.18),P2D);
   scorePanel = createGraphics((int)(height*0.68),(int)(height*0.15),P2D);
 
-	ball =new Mover();
+	ball =new Mover(boardX, boardY);
 	gravityForce= new PVector();
 	gravityConstant = -0.8;
 
 	cylinders= new ArrayList<PVector>();
 	cylinder = loadShape("cylinder.obj");
   
-  boardX = 1000;
-  boardY = 1000;
+  
   
 	shiftMode=false;
 }
@@ -91,21 +105,21 @@ void draw() {
 
 
 
-       PVector rots= imgproc.getRotation();
+       PVector rots= imgproc.getRotation(m.get());
 
     if (rots != null){
-      System.out.println("Printing R.x" + rots.x);
+      System.out.println(rots);
 
       //I think it shouldnt be += but =
       rx= rots.x;
       // rx+= radians((mouseX-pmouseX)*rotationScale) ;
-      rz= rots.y; //In Week12 - 2 its said that we have to use x & y, no mention for z
+      rz= rots.z; //In Week12 - 2 its said that we have to use x & y, no mention for z
       // rz+= radians(-(mouseY-pmouseY)*rotationScale);
       
 
       //bounderies
-      rx = min(1,max(rx,-1)); //60º == 1 radian
-      rz = min(1,max(rz,-1));
+      rx = min(radians(60),max(rx,radians(-60))); 
+      rz = min(radians(60),max(rz,radians(-60)));
     }
     else
       System.out.println("nulllll");
@@ -245,8 +259,8 @@ void run(PGraphics s){
       
       s.pushMatrix();
       s.fill(255,255,255);
-      float x = map(v.x, -500.0,500.0, 0.0, height*0.18);
-      float z = map(v.z, -500.0,500.0, 0.0, height*0.18);
+      float x = map(v.x, -boardX/2.0,boardX/2.0, 0.0, height*0.18);
+      float z = map(v.z, -boardY/2.0,boardY/2.0, 0.0, height*0.18);
       s.ellipse(x,z, s.width*cylinderScale.x/(boardX/2),s.height*cylinderScale.z/(boardY/2));
       s.popMatrix();
     }
@@ -341,26 +355,23 @@ void mouseWheel(MouseEvent event) {
 }
 
 void mouseDragged(){
-
+/*
 	if (!shiftMode && mouseY < width*0.8){
-    PVector rots= imgproc.getRotation();
+    
 
-    if (rots != null){
-      System.out.println("Printing R.x" + rots.x);
+   
 
-      rx= rots.x;
-      rz= rots.z;
+     
       
-      // rx+= radians((mouseX-pmouseX)*rotationScale) ;
+      rx+= radians((mouseX-pmouseX)*rotationScale) ;
 
       //bounderies
       rx = min( radians(60),max(rx,radians(-60)));
 
-      // rz+= radians(-(mouseY-pmouseY)*rotationScale);
+      rz+= radians(-(mouseY-pmouseY)*rotationScale);
       rz = min( radians(60),max(rz,radians(-60)));
-    }
-    else
-      System.out.println("nulllll");
+    }*/
+   
 
-	}
+	
 }

@@ -7,12 +7,15 @@ class Mover{
 	float Y_MAX=200;
 	float Y_MIN = -200;
   
-  final float radius =50;
-  float cylinderRadius = 100;
+  final float radius =10;
+  float cylinderRadius = 20;
+  float boardX,boardY;
   
-	Mover(){
-		location =new PVector(0, 0,0);
+	Mover(float boardX, float boardY){
+		location =new PVector(0, 40,0);
 		velocity= new PVector(0,0,0);
+    this.boardX = boardX;
+    this.boardY = boardY;
 	}
 
 	void update(){
@@ -27,24 +30,24 @@ class Mover{
   void display2D(PGraphics s, float dimension){
     //s.translate(location.x, location.y, location.z);
     
-    float x = map(location.x, -500.0,500.0, 0.0, dimension);
-    float z = map(location.z, -500.0,500.0, 0.0, dimension);
+    float x = map(location.x, -boardX/2.0,boardX/2.0, 0.0, dimension);
+    float z = map(location.z, -boardY/2.0,boardY/2.0, 0.0, dimension);
     
-    s.ellipse(x, z, radius*dimension/500, radius*dimension/500);
+    s.ellipse(x, z, radius*dimension/(boardX/2.0), radius*dimension/(boardX/2.0));
   }
 
 	void checkEdges(int[] score){
     
-		if(location.x > 500) {
+		if(location.x > boardX/2.0) {
       score[0] -= (int)norm(velocity);
 			velocity.x *= -0.5; 
-		} else if(location.x < -500) {
+		} else if(location.x < -boardY/2.0) {
       score[0] -= (int)norm(velocity);
 			velocity.x *= -0.5; 
-		} if(location.z > 500) {
+		} if(location.z > boardX/2.0) {
       score[0] -= (int)norm(velocity);
 			velocity.z *= -0.5; 
-		} else if(location.z < -500) {
+		} else if(location.z < -boardY/2.0) {
       score[0] -= (int)norm(velocity);
 			velocity.z *= -0.5; 
 		}
@@ -53,8 +56,8 @@ class Mover{
 		/*fixing a bug where the ball keeps falling out of range because
 			its speed kept being multiplied by -1 which led to negative speed values being
 			positive ones since gravity adds up*/
-		location.x = max(-500,min(location.x,500));
-		location.z = max(-500,min(location.z,500));  
+		location.x = max(-boardX/2.0,min(location.x,boardX/2.0));
+		location.z = max(-boardY/2.0,min(location.z,boardY/2.0));  
 	}
   
   PVector rawNormal(PVector p){
