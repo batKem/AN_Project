@@ -37,7 +37,7 @@ void settings() {
 	public PVector getRotation(PImage img){
 		List<PVector> lines, corners;
 		QuadGraph qGraph = new QuadGraph();
-		TwoDThreeD twoDThreeD = new TwoDThreeD(img.width, img.height, 30);
+		TwoDThreeD twoDThreeD = new TwoDThreeD(img.width, img.height, 0);
 
 	    img = thresholdHSB(img, 90, 138, 80, 255, 17, 190); //H/B/S thresholding
 	    img = findConnectedComponents(img, false);
@@ -75,26 +75,8 @@ void settings() {
 	  else 
 	    return (float) n;
 	}
-  /*
-  ArrayList<PVector> clockWhiseSort(ArrayList<PVector> corners){
-    
-    
-    PVector corner1 = corners.get(0);
-    PVector corner2 = corners.get(2);
-    PVector midCorner = new PVector( (corner1.x+corner2.x)/2.0, (corner1.y+corner2.y)/2.0 );
-    Collections.sort(corners, new CWComparator(midCorner));
-    
-    PVector origin =new PVector(0, 0);
-    float distance = 1000;
-    for (PVector corner :corners){
-      distance = (corner.dist(origin)< distance)? corner.dist(origin):distance;
-    }
-    while(corners.get(0).dist(origin) != distance){
-      Collections.rotate(corners,1);
-    }
-    return corners;
-    
-  }*/
+
+
 
 	List<PVector> hough(PImage edgeImg, int nLines) {
 
