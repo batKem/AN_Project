@@ -7,6 +7,7 @@ class ImageProcessing extends PApplet {
 
   Movie cam;
 	PImage img;
+  List<PVector> lines, corners;
 	  	ArrayList<Integer> bestCandidates;
   public ImageProcessing(Movie m){
   
@@ -31,24 +32,36 @@ void settings() {
 			cam.read(); 
 		img = cam.get(); 
 		image(img, 0, 0);
+  if (lines !=null){
+     drawLines(img, lines);
+   }
+   if (corners !=null) {
+   for(int j = 0; j < 4; j++){
+      fill(40, 50.);
+      if (corners.size()>=4){
+      ellipse(corners.get(j).x, corners.get(j).y, 30, 30);
+      }
+    }
+  }
 		//Camera
 	}
 
 	public PVector getRotation(PImage img){
-		List<PVector> lines, corners;
+	
 		QuadGraph qGraph = new QuadGraph();
-		TwoDThreeD twoDThreeD = new TwoDThreeD(img.width, img.height, 0);
+		TwoDThreeD twoDThreeD = new TwoDThreeD(img.width, img.height, 1/60);
 
-	    img = thresholdHSB(img, 90, 138, 80, 255, 17, 190); //H/B/S thresholding
+	    img = thresholdHSB(img, 94, 142, 90, 255, 0, 255); //H/B/S thresholding
 	    img = findConnectedComponents(img, false);
 	    img = convolute(img); //Blurring
 	    img = scharr(img); //Edge Detection
-	    img = threshold(img, 80); //Supression low bright pixels
+	    img = threshold(img, 120); //Supression low bright pixels
 	    lines = hough(img, 4); //Hough transform
-
+      
 	    corners = qGraph.findBestQuad(lines, img.width, img.height, 280000, 30000, false);
      
 	    if (corners.size() != 0){
+     
         corners = qGraph.sortCorners((ArrayList<PVector>)corners);
 		   	for (int j = 0; j < corners.size(); j++)
 		      corners.get(j).z = 1.;
