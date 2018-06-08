@@ -51,11 +51,11 @@ void settings() {
 		QuadGraph qGraph = new QuadGraph();
 		TwoDThreeD twoDThreeD = new TwoDThreeD(img.width, img.height, 1/60);
 
-	    img = thresholdHSB(img, 94, 142, 90, 255, 0, 255); //H/B/S thresholding
+	    img = thresholdHSB(img, 78, 142, 80, 255,25, 250); //H/B/S thresholding
 	    img = findConnectedComponents(img, false);
 	    img = convolute(img); //Blurring
 	    img = scharr(img); //Edge Detection
-	    img = threshold(img, 120); //Supression low bright pixels
+	    img = threshold(img, 90); //Supression low bright pixels
 	    lines = hough(img, 4); //Hough transform
       
 	    corners = qGraph.findBestQuad(lines, img.width, img.height, 280000, 30000, false);

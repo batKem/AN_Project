@@ -114,7 +114,7 @@ class Mover{
         }
         
       }
-      cylinders.removeAll(toDeleteCyl);
+      //cylinders.removeAll(toDeleteCyl);
       score[0] = max(0, score[0]);
   	}
 

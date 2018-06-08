@@ -281,8 +281,8 @@ void run(PGraphics s){
       s.background(150);
       
       s.stroke(0);
-      s.text("v="+ball.norm(ball.velocity),10,10);
-      s.text("s="+score[0],10,20);
+      s.text("velocity="+ball.norm(ball.velocity),10,10);
+      s.text("score="+score[0],10,20);
       s.endDraw();
   
   }
